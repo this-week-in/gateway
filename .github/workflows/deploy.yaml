@@ -1,4 +1,4 @@
-name: API
+name: Studio Gateway 
 
 env:
   PINBOARD_TOKEN: ${{ secrets.PINBOARD_TOKEN }}
@@ -6,10 +6,10 @@ env:
   ARTIFACTORY_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME  }}
   ARTIFACTORY_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD  }}
 
-  GKE_CLUSTER:   ${{ secrets.GKE_CLUSTER }}
-  GCLOUD_ZONE:  ${{ secrets.GCLOUD_ZONE }}
-  NS_NAME:  ${{ secrets.NS_NAME }}
-  GCLOUD_SA_KEY:  ${{ secrets.GCLOUD_SA_KEY }}
+  GKE_CLUSTER: ${{ secrets.GKE_CLUSTER }}
+  GCLOUD_ZONE: ${{ secrets.GCLOUD_ZONE }}
+  NS_NAME: ${{ secrets.NS_NAME }}
+  GCLOUD_SA_KEY: ${{ secrets.GCLOUD_SA_KEY }}
 
 
 on:
