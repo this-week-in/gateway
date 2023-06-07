@@ -1,5 +1,7 @@
 package twi;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.actuate.autoconfigure.security.reactive.EndpointRequest;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -41,6 +43,8 @@ public class GatewayApplication {
     RouteLocator gateway(GatewayProperties gp, RouteLocatorBuilder rlb) {
         var api = gp.bookmarksApiUri();
         var html = gp.studioClientUri();
+        LoggerFactory.getLogger(getClass()).info("forwarding /api/* to " + gp.bookmarksApiUri() +
+                                                 " and / to " + gp.studioClientUri());
         return rlb
                 .routes()
                 .route(rs -> rs
