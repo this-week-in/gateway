@@ -1,6 +1,5 @@
 package twi;
 
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.actuate.autoconfigure.security.reactive.EndpointRequest;
@@ -30,6 +29,7 @@ public class GatewayApplication {
     }
 
 
+/*
     @Bean
     SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
         http.authorizeExchange(exchanges ->
@@ -38,13 +38,14 @@ public class GatewayApplication {
                         .anyExchange().authenticated());
         return http.build();
     }
+*/
 
     @Bean
     RouteLocator gateway(GatewayProperties gp, RouteLocatorBuilder rlb) {
         var api = gp.bookmarksApiUri();
         var html = gp.studioClientUri();
-        LoggerFactory.getLogger(getClass()).info("forwarding /api/* to " + gp.bookmarksApiUri() +
-                                                 " and / to " + gp.studioClientUri());
+        var logger = LoggerFactory.getLogger(getClass());
+        logger.info("forwarding /api/* to " + gp.bookmarksApiUri() + " and / to " + gp.studioClientUri());
         return rlb
                 .routes()
                 .route(rs -> rs
