@@ -1,5 +1,6 @@
 package twi;
 
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
@@ -30,12 +31,18 @@ public class GatewayApplication {
         SpringApplication.run(GatewayApplication.class, args);
     }
 
+    private final Logger log = LoggerFactory.getLogger(getClass());
+
     @Bean
-    ApplicationRunner health () {
+    ApplicationRunner health() {
         return args -> {
             var tmp = new File("/tmp/");
-            try (var out = new FileWriter(new File(tmp, "health"))) {
-                FileCopyUtils.copy("initialized @ " + Instant.now(), out);
+            var health = new File(tmp, "health");
+            try (var out = new FileWriter(health)) {
+                var message = "initialized @ " + Instant.now();
+                tmp.mkdirs();
+                FileCopyUtils.copy(message, out);
+                log.info(message + "::" +  health.exists());
             }
         };
     }
