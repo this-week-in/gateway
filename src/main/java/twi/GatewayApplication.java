@@ -9,7 +9,6 @@ import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
 
 import java.net.URI;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -28,27 +27,23 @@ public class GatewayApplication {
     }
 
     @Bean
-    RouteLocator gateway(GatewayProperties gp, RouteLocatorBuilder rlb)  {
-        var api = determineUri(gp, GatewayProperties::bookmarksApiUri, () -> URI.create("http://localhost:8081"));
-        var html = determineUri(gp, GatewayProperties::htmlUri, () -> URI.create("http://localhost:5173"));
+    RouteLocator gateway(GatewayProperties gp, RouteLocatorBuilder rlb) {
+        var api = gp.bookmarksApiUri();
+        var html = gp.studioClientUri();
         return rlb
                 .routes()
                 .route(rs -> rs
-                        .path("/api/**")
-                        .filters(f -> f.tokenRelay().rewritePath("/api/(?<segment>.*)", "/$\\{segment}"))
-                        .uri(api))
+                    .path("/api/**")
+                    .filters(f -> f.tokenRelay().rewritePath("/api/(?<segment>.*)", "/$\\{segment}"))
+                    .uri(api)
+                )
                 .route(rs -> rs.path("/**").uri(html))
                 .build();
-    }
-
-    private static URI determineUri(GatewayProperties g, Function<GatewayProperties, URI> u, Supplier<URI> defaultUri) {
-        var result = u.apply(g);
-        return result != null ? result : defaultUri.get();
     }
 }
 
 @ConfigurationProperties(prefix = "twi.gateway")
 record GatewayProperties(
         URI bookmarksApiUri,
-        URI htmlUri) {
+        URI studioClientUri) {
 }
