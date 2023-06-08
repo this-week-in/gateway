@@ -2,20 +2,19 @@ package twi;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.actuate.autoconfigure.security.reactive.EndpointRequest;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
-import org.springframework.util.FileCopyUtils;
+import org.springframework.security.config.Customizer;
+import org.springframework.security.config.web.server.ServerHttpSecurity;
+import org.springframework.security.web.server.SecurityWebFilterChain;
 
-import java.io.File;
-import java.io.FileWriter;
 import java.net.URI;
-import java.time.Instant;
 
 /**
  * this is a proxy to both the backend bookmark-api and the static HTML
@@ -34,25 +33,24 @@ public class GatewayApplication {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     @Bean
-    ApplicationRunner health() {
-        return args -> {
-            var tmp = new File("/tmp/");
-            var health = new File(tmp, "health");
-            try (var out = new FileWriter(health)) {
-                var message = "initialized @ " + Instant.now();
-                tmp.mkdirs();
-                FileCopyUtils.copy(message, out);
-                log.info(message + "::" +  health.exists());
-            }
-        };
+    SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
+        http
+                .authorizeExchange((authorize) -> authorize
+                        .matchers(EndpointRequest.toAnyEndpoint()).permitAll()
+                        .anyExchange().authenticated()
+                )
+                .oauth2Login(Customizer.withDefaults())
+                .oauth2Client(Customizer.withDefaults());
+        return http.build();
     }
+
 
     @Bean
     RouteLocator gateway(GatewayProperties gp, RouteLocatorBuilder rlb) {
+        log.info("fingers crossed this gateway is both a gateway and an OAuth client with a valid health check..");
         var api = gp.bookmarksApiUri();
         var html = gp.studioClientUri();
-        var logger = LoggerFactory.getLogger(getClass());
-        logger.info("forwarding /api/* to " + gp.bookmarksApiUri() + " and / to " + gp.studioClientUri());
+        log.info("forwarding /api/* to " + gp.bookmarksApiUri() + " and / to " + gp.studioClientUri());
         return rlb
                 .routes()
                 .route(rs -> rs
