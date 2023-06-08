@@ -15,6 +15,7 @@ import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 
 import java.net.URI;
+import java.util.Map;
 
 /**
  * this is a proxy to both the backend bookmark-api and the static HTML
@@ -50,7 +51,9 @@ public class GatewayApplication {
     RouteLocator gateway(GatewayProperties gatewayProperties, RouteLocatorBuilder rlb) {
         var api = gatewayProperties.bookmarksApiUri();
         var html = gatewayProperties.studioClientUri();
-        log.info("forwarding /api/* to " + api + " and / to " + html);
+
+        Map.of("/api/*", api, "/", html).forEach((k, v) -> log.info("forwarding [" + k + "] to [" + v + "]"));
+
         return rlb
                 .routes()
                 .route(rs -> rs
