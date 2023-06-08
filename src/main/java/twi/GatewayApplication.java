@@ -2,6 +2,8 @@ package twi;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.actuate.autoconfigure.security.reactive.EndpointRequest;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -33,6 +35,11 @@ public class GatewayApplication {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
+
+    @Bean
+    ApplicationRunner debugEnv() {
+        return args -> System.getenv().forEach((k, v) -> log.info( '\t'+k + '=' + v));
+    }
 
     @Bean
     SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
