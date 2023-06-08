@@ -32,6 +32,7 @@ public class GatewayApplication {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
+
     @Bean
     SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
         http
@@ -46,11 +47,10 @@ public class GatewayApplication {
 
 
     @Bean
-    RouteLocator gateway(GatewayProperties gp, RouteLocatorBuilder rlb) {
-        log.info("fingers crossed this gateway is both a gateway and an OAuth client with a valid health check..");
-        var api = gp.bookmarksApiUri();
-        var html = gp.studioClientUri();
-        log.info("forwarding /api/* to " + gp.bookmarksApiUri() + " and / to " + gp.studioClientUri());
+    RouteLocator gateway(GatewayProperties gatewayProperties, RouteLocatorBuilder rlb) {
+        var api = gatewayProperties.bookmarksApiUri();
+        var html = gatewayProperties.studioClientUri();
+        log.info("forwarding /api/* to " + api + " and / to " + html);
         return rlb
                 .routes()
                 .route(rs -> rs
