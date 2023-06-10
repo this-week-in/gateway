@@ -49,7 +49,7 @@ public class GatewayApplication {
                         .matchers(EndpointRequest.toAnyEndpoint()).permitAll()
                         .anyExchange().authenticated()
                 )
-                .redirectToHttps(Customizer.withDefaults())
+               // .redirectToHttps(Customizer.withDefaults())
                 .oauth2Login(Customizer.withDefaults())
                 .oauth2Client(Customizer.withDefaults());
         return http.build();
