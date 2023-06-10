@@ -16,7 +16,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
-import reactor.netty.http.client.HttpClient;
 
 import java.net.URI;
 import java.util.Map;
@@ -37,6 +36,7 @@ public class GatewayApplication {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
+
     @Bean
     ApplicationRunner debugEnv() {
         return args -> System.getenv().forEach((k, v) -> log.info('\t' + k + '=' + v));
@@ -49,6 +49,7 @@ public class GatewayApplication {
                         .matchers(EndpointRequest.toAnyEndpoint()).permitAll()
                         .anyExchange().authenticated()
                 )
+                .redirectToHttps(Customizer.withDefaults())
                 .oauth2Login(Customizer.withDefaults())
                 .oauth2Client(Customizer.withDefaults());
         return http.build();
