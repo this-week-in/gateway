@@ -35,7 +35,6 @@ public class GatewayApplication {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
-
     @Bean
     ApplicationRunner debugEnv() {
         return args -> System.getenv().forEach((k, v) -> log.info( '\t'+k + '=' + v));
