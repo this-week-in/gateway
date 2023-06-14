@@ -3,7 +3,6 @@ package twi;
 import io.netty.resolver.DefaultAddressResolverGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.actuate.autoconfigure.security.reactive.EndpointRequest;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -36,12 +35,6 @@ public class GatewayApplication {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
-
-//    @Bean
-//    ApplicationRunner debugEnv() {
-//        return args -> System.getenv().forEach((k, v) -> log.info('\t' + k + '=' + v));
-//    }
-
     @Bean
     SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
         http
@@ -49,7 +42,7 @@ public class GatewayApplication {
                         .matchers(EndpointRequest.toAnyEndpoint()).permitAll()
                         .anyExchange().authenticated()
                 )
-               // .redirectToHttps(Customizer.withDefaults())
+                // .redirectToHttps(Customizer.withDefaults())
                 .oauth2Login(Customizer.withDefaults())
                 .oauth2Client(Customizer.withDefaults());
         return http.build();
@@ -67,15 +60,26 @@ public class GatewayApplication {
         var html = gatewayProperties.studioClientUri();
 
         Map.of("/api/*", api, "/", html).forEach((k, v) -> log.info("forwarding [" + k + "] to [" + v + "]"));
-
+        
+        var proto = "https";
+        var xForwardedProtoHeaderName = "X-Forwarded-Proto";
         return rlb
+
                 .routes()
                 .route(rs -> rs
                         .path("/api/**")
-                        .filters(f -> f.tokenRelay().rewritePath("/api/(?<segment>.*)", "/$\\{segment}"))
+                        .filters(f -> f
+                                .tokenRelay()
+                                .rewritePath("/api/(?<segment>.*)", "/$\\{segment}")
+                                .addRequestHeader(//todo put this in a property flag or something
+                                        xForwardedProtoHeaderName, proto
+                                )
+                        )
                         .uri(api)
                 )
-                .route(rs -> rs.path("/**").uri(html))
+                .route(rs -> rs.path("/**").filters(f -> f.addRequestHeader(//todo put this in a property flag or something
+                        xForwardedProtoHeaderName, proto
+                )).uri(html))
                 .build();
     }
 }
