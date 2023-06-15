@@ -32,12 +32,8 @@ import java.util.Map;
 public class GatewayApplication {
 
     public static void main(String[] args) {
+        System.getenv().forEach((k, v) -> log.info("header: " + k));
         SpringApplication.run(GatewayApplication.class, args);
-    }
-
-    @Bean
-    ApplicationRunner applicationRunner() {
-        return e -> System.getenv().forEach((k, v) -> log.info("header: " + k));
     }
 
     @Bean
