@@ -48,11 +48,11 @@ public class GatewayApplication {
         return http.build();
     }
 
-    @Bean
-    HttpClientCustomizer httpClientCustomizer() {
-        log.info("overriding the DNS resolver for the Reactor Netty HTTP Client");
-        return hc -> hc.resolver(DefaultAddressResolverGroup.INSTANCE);
-    }
+//    @Bean
+//    HttpClientCustomizer httpClientCustomizer() {
+//        log.info("overriding the DNS resolver for the Reactor Netty HTTP Client");
+//        return hc -> hc.resolver(DefaultAddressResolverGroup.INSTANCE);
+//    }
 
     @Bean
     RouteLocator gateway(GatewayProperties gatewayProperties, RouteLocatorBuilder rlb) {
@@ -60,9 +60,7 @@ public class GatewayApplication {
         var html = gatewayProperties.studioClientUri();
 
         Map.of("/api/*", api, "/", html).forEach((k, v) -> log.info("forwarding [" + k + "] to [" + v + "]"));
-        
-        var proto = "https";
-        var xForwardedProtoHeaderName = "X-Forwarded-Proto";
+
         return rlb
 
                 .routes()
@@ -71,15 +69,12 @@ public class GatewayApplication {
                         .filters(f -> f
                                 .tokenRelay()
                                 .rewritePath("/api/(?<segment>.*)", "/$\\{segment}")
-                                .addRequestHeader(//todo put this in a property flag or something
-                                        xForwardedProtoHeaderName, proto
-                                )
                         )
                         .uri(api)
                 )
-                .route(rs -> rs.path("/**").filters(f -> f.addRequestHeader(//todo put this in a property flag or something
-                        xForwardedProtoHeaderName, proto
-                )).uri(html))
+                .route(rs -> rs
+                        .path("/**")
+                        .uri(html))
                 .build();
     }
 }
