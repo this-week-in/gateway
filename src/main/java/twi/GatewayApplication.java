@@ -31,13 +31,13 @@ import java.util.Map;
 @EnableConfigurationProperties(GatewayProperties.class)
 public class GatewayApplication {
 
+    public static void main(String[] args) {
+        SpringApplication.run(GatewayApplication.class, args);
+    }
+
     @Bean
     ApplicationRunner applicationRunner() {
         return e -> System.getenv().forEach((k, v) -> log.info("header: " + k));
-    }
-
-    public static void main(String[] args) {
-        SpringApplication.run(GatewayApplication.class, args);
     }
 
     @Bean
