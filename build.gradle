@@ -26,6 +26,9 @@ dependencies {
     testImplementation 'io.projectreactor:reactor-test'
     annotationProcessor 'org.projectlombok:lombok'
     // need this for consistent session state
+    runtimeOnly 'org.postgresql:r2dbc-postgresql'
+    implementation 'org.springframework.boot:spring-boot-starter-data-r2dbc'
+
     implementation 'org.springframework.session:spring-session-data-redis'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
