@@ -48,12 +48,6 @@ public class GatewayApplication {
         return http.build();
     }
 
-//    @Bean
-//    HttpClientCustomizer httpClientCustomizer() {
-//        log.info("overriding the DNS resolver for the Reactor Netty HTTP Client");
-//        return hc -> hc.resolver(DefaultAddressResolverGroup.INSTANCE);
-//    }
-
     @Bean
     RouteLocator gateway(GatewayProperties gatewayProperties, RouteLocatorBuilder rlb) {
         var api = gatewayProperties.bookmarksApiUri();
