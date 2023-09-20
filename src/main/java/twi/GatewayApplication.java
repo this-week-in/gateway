@@ -1,7 +1,6 @@
 package twi;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.actuate.autoconfigure.security.reactive.EndpointRequest;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -43,6 +42,7 @@ public class GatewayApplication {
                         .matchers(EndpointRequest.toAnyEndpoint()).permitAll()
                         .anyExchange().authenticated()
                 )
+                .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .oauth2Login(Customizer.withDefaults())
                 .oauth2Client(Customizer.withDefaults());
         return http.build();
@@ -50,6 +50,7 @@ public class GatewayApplication {
 
     @Bean
     RouteLocator gateway(GatewayProperties gatewayProperties, RouteLocatorBuilder rlb) {
+        var retries = 5;
         var api = gatewayProperties.bookmarksApiUri();
         var html = gatewayProperties.studioClientUri();
         Map.of("/api/*", api, "/", html).forEach((k, v) -> log.info("forwarding [" + k + "] to [" + v + "]"));
@@ -60,11 +61,13 @@ public class GatewayApplication {
                         .filters(f -> f
                                 .tokenRelay()
                                 .rewritePath("/api/(?<segment>.*)", "/$\\{segment}")
+                                .retry(retries)
                         )
                         .uri(api)
                 )
                 .route(rs -> rs
                         .path("/**")
+                        .filters(f -> f.retry(retries))
                         .uri(html))
                 .build();
     }
